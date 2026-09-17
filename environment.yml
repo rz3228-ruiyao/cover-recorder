@@ -1,0 +1,15 @@
+name: cover-syncer
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pyside6
+  - numpy
+  - scipy
+  - pysoundfile
+  - ffmpeg
+  - pytest
+  - pip
+  - setuptools
+  - pip:
+      - -e .
