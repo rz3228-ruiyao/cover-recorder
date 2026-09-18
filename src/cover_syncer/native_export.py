@@ -17,6 +17,7 @@ def export_job(job: dict) -> dict:
     if job.get("version") != 1:
         raise ValueError("Unsupported export job version.")
     offset = float(job["offset_ms"])
+    alignment_details = {}
     if job.get("auto_align"):
         try:
             alignment = analyze_media(job["video"], job["audio"])
@@ -24,11 +25,15 @@ def export_job(job: dict) -> dict:
             return {"success": False, "needs_manual": True, "offset_ms": offset,
                     "error": f"自动对齐失败，素材已保留，请手动设置偏移：{exc}"}
         offset = alignment.offset_ms
+        alignment_details = {"alignment_method": alignment.method,
+                             "alignment_reliability": alignment.reliability}
         if alignment.reliability != "high":
             return {"success": False, "needs_manual": True, "offset_ms": offset,
-                    "error": "自动对齐可靠性不足，素材已保留；请确认或修改候选偏移后导出。"}
+                    "error": "自动对齐可靠性不足，素材已保留；" +
+                             (alignment.decision_reason or "请确认或修改候选偏移后导出。"),
+                    **alignment_details}
     result = export_synced_video(job["video"], job["audio"], job["output"], offset, overwrite=False)
-    return {"success": True, "output": str(result.output_path), "offset_ms": offset}
+    return {"success": True, "output": str(result.output_path), "offset_ms": offset, **alignment_details}
 
 
 def main(argv: list[str] | None = None) -> int:

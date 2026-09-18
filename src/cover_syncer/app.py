@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
         result_layout.setHorizontalSpacing(14)
         result_layout.setVerticalSpacing(12)
         result_layout.addRow("自动估计值", self.auto_offset_label)
-        result_layout.addRow("置信度", self.confidence_label)
+        result_layout.addRow("相关分数", self.confidence_label)
         result_layout.addRow("峰值比", self.peak_ratio_label)
         result_layout.addRow("切片一致性", self.segment_consistency_label)
         result_layout.addRow("可靠性", self.reliability_label)
@@ -354,7 +354,9 @@ class MainWindow(QMainWindow):
         self.segment_consistency_label.setText(format_segment_consistency(result))
         self.reliability_label.setText(format_reliability(result.reliability))
         self.update_final_offset()
-        if result.reliability == "low":
+        if result.decision_reason:
+            self.write_status("分析完成。" + result.decision_reason)
+        elif result.reliability == "low":
             self.write_status(
                 "分析完成，但可靠性较低。建议使用更长片段、确保视频原声能听到演奏，或导出后手动微调。"
             )

@@ -24,6 +24,10 @@ class SyncResult:
     segment_consistency_ms: float | None = None
     segment_offsets_ms: tuple[float, ...] = ()
     reliability: str = "single"
+    method: str = "envelope"
+    decision_reason: str = ""
+    envelope_offset_ms: float | None = None
+    spectral_offset_ms: float | None = None
 
 
 def estimate_offset_from_files(
@@ -41,7 +45,9 @@ def estimate_offset_from_files(
             f"{reference_rate} Hz and {external_rate} Hz."
         )
     if robust:
-        return estimate_offset_robust(
+        # Keep the original RMS APIs available as a reproducible baseline.
+        from .spectral_sync import estimate_offset_hybrid
+        return estimate_offset_hybrid(
             reference,
             external,
             reference_rate,
